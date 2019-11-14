@@ -2,12 +2,12 @@
 	<v-container>
 		<v-card>
 			<v-container grid-list-md mb-0>
-				<h2 class="text-md-center">Data User</h2>
+				<h2 class="text-md-center">Data Bengkel</h2>
 				<v-layout row wrap style="margin:10px">
 					<v-flex xs6>
 						<v-btn depressed dark rounded style="text-transform: none !important;" color="green accent-3"
 							@click="dialog = true">
-							<v-icon size="18" class="mr-2">mdi-pencil-plus</v-icon> Tambah User
+							<v-icon size="18" class="mr-2">mdi-pencil-plus</v-icon> Add Branch
 						</v-btn>
 					</v-flex>
 					<v-flex xs6 class="text-right">
@@ -16,14 +16,15 @@
 					</v-flex>
 				</v-layout>
 
-				<v-data-table :headers="headers" :items="users" :search="keyword" :loading="load"> <template
+				<v-data-table :headers="headers" :items="branches" :search="keyword" :loading="load"> <template
 						v-slot:body="{ items }">
 						<tbody>
 							<tr v-for="(item,index) in items" :key="item.id">
 								<td>{{ index + 1 }}</td>
 								<td>{{ item.name }}</td>
-								<td>{{ item.email}}</td>
-								<td>{{ item.password }}</td>
+								<td>{{ item.address}}</td>
+								<td>{{ item.phoneNumber }}</td>
+                                <td>{{ item.created_at }}</td>
 								<td class="text-center">
 									<v-btn icon color="indigo" light @click="editHandler(item)">
 										<v-icon>mdi-pencil</v-icon>
@@ -39,7 +40,7 @@
 		</v-card>
 		<v-dialog v-model="dialog" persistent max-width="600px">
 			<v-card>
-				<v-card-title> <span class="headline">User Profile</span> </v-card-title>
+				<v-card-title> <span class="headline">Branches Data</span> </v-card-title>
 				<v-card-text>
 					<v-container>
 						<v-row>
@@ -48,11 +49,13 @@
 								</v-text-field>
 							</v-col>
 							<v-col cols="12">
-								<v-text-field label="Email*" v-model="form.email" required></v-text-field>
+								<v-text-field label="Address*" v-model="form.address" required></v-text-field>
 							</v-col>
 							<v-col cols="12">
-								<v-text-field label="Password*" v-model="form.password" type="password" required>
-								</v-text-field>
+								<v-text-field label="Phone Number" v-model="form.phoneNumber"></v-text-field>
+							</v-col>
+                            <v-col cols="12">
+								<v-text-field label="Created At" v-model="form.created_at"></v-text-field>
 							</v-col>
 						</v-row>
 					</v-container> <small>*indicates required field</small>
@@ -82,26 +85,30 @@
 					text: 'Name',
 					value: 'name'
 				}, {
-					text: 'Email',
-					value: 'email'
+					text: 'Address',
+					value: 'address'
 				}, {
-					text: 'Password',
-					value: 'password'
+					text: 'Phone Number',
+					value: 'phoneNumber'
+				},{
+					text: 'Created At',
+					value: 'created_at'
 				}, {
 					text: 'Aksi',
 					value: null
 				}, ],
-				users: [],
+				branches: [],
 				snackbar: false,
 				color: null,
 				text: '',
 				load: false,
 				form: {
 					name: '',
-					email: '',
-					password: ''
+					address: '',
+                    phoneNumber: '',
+                    created_at: ''
 				},
-				user: new FormData,
+				branch: new FormData,
 				typeInput: 'new',
 				errors: '',
 				updatedId: '',
@@ -109,25 +116,26 @@
 		},
 		methods: {
 			getData() {
-				var uri = this.$apiUrl + '/user'
+				var uri = this.$apiUrl + '/branches'
 				this.$http.get(uri).then(response => {
-					this.users = response.data.message
+					this.branches = response.data.message
 				})
 			},
 			sendData() {
-				this.user.append('name', this.form.name);
-				this.user.append('email', this.form.email);
-				this.user.append('password', this.form.password);
-				var uri = this.$apiUrl + '/user'
+				this.branch.append('name', this.form.name);
+				this.branch.append('address', this.form.address);
+                this.branch.append('phoneNumber', this.form.phoneNumber);
+                this.branch.append('created_at', this.form.created_at);
+				var uri = this.$apiUrl + '/branches'
 				this.load = true
-				this.$http.post(uri, this.user).then(response => {
+				this.$http.post(uri, this.branch).then(response => {
 					this.snackbar =
 						true; //mengaktifkan snackbar               
 					this.color = 'green'; //memberi warna snackbar               
 					this.text = response.data.message; //memasukkan pesan ke snackbar               
 					this.load = false;
 					this.dialog = false
-					this.getData(); //mengambil data user               
+					this.getData(); //mengambil data branch               
 					this.resetForm();
 				}).catch(error => {
 					this.errors = error
@@ -138,18 +146,19 @@
 				})
 			},
 			updateData() {
-				this.user.append('name', this.form.name);
-				this.user.append('email', this.form.email);
-				this.user.append('password', this.form.password);
-				var uri = this.$apiUrl + '/user/' + this.updatedId;
+				this.branch.append('name', this.form.name);
+				this.branch.append('address', this.form.address);
+                this.branch.append('phoneNumber', this.form.phoneNumber);
+                this.branch.append('created_at', this.form.created_at);
+				var uri = this.$apiUrl + '/branches/' + this.updatedId;
 				this.load = true
-				this.$http.post(uri, this.user).then(response => {
+				this.$http.post(uri, this.branch).then(response => {
 					this.snackbar = true; //mengaktifkan snackbar             
 					this.color = 'green'; //memberi warna snackbar  
 					this.text = response.data.message; //memasukkan pesan ke snackbar 
 					this.load = false;
 					this.dialog = false
-					this.getData(); //mengambil data user   
+					this.getData(); //mengambil data branch   
 					this.resetForm();
 					this.typeInput = 'new';
 				}).catch(error => {
@@ -165,12 +174,13 @@
 				this.typeInput = 'edit';
 				this.dialog = true;
 				this.form.name = item.name;
-				this.form.email = item.email;
-				this.form.password = '',
+				this.form.address = item.address;
+                this.form.phoneNumber = item.phoneNumber;
+                this.form.created_at = '',
 					this.updatedId = item.id
 			},
 			deleteData(deleteId) { //mengahapus data      
-				var uri = this.$apiUrl + '/user/' + deleteId; //data dihapus berdasarkan id 
+				var uri = this.$apiUrl + '/branches/' + deleteId; //data dihapus berdasarkan id 
 
 				this.$http.delete(uri).then(response => {
 					this.snackbar = true;
@@ -196,8 +206,9 @@
 			resetForm() {
 				this.form = {
 					name: '',
-					email: '',
-					password: ''
+					address: '',
+                    phoneNumber: '',
+                    created_at: ''
 				}
 			}
 		},
